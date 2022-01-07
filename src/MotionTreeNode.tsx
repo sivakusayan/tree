@@ -87,6 +87,8 @@ const MotionTreeNode: React.ForwardRefRenderFunction<HTMLDivElement, MotionTreeN
                 key,
                 isStart,
                 isEnd,
+                index,
+                parentChildrenCount,
               } = treeNode;
               delete restProps.children;
 
@@ -102,6 +104,8 @@ const MotionTreeNode: React.ForwardRefRenderFunction<HTMLDivElement, MotionTreeN
                   key={key}
                   isStart={isStart}
                   isEnd={isEnd}
+                  index={index}
+                  parentChildrenCount={parentChildrenCount}
                 />
               );
             })}

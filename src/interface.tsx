@@ -82,6 +82,8 @@ export interface FlattenNode {
   key: Key;
   isStart: boolean[];
   isEnd: boolean[];
+  index: number;
+  parentChildrenCount: number;
 }
 
 export type GetKey<RecordType> = (record: RecordType, index?: number) => Key;

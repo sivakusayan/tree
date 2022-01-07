@@ -36,6 +36,8 @@ export interface TreeNodeProps<TreeDataType extends BasicDataNode = DataNode> {
   data?: TreeDataType;
   isStart?: boolean[];
   isEnd?: boolean[];
+  index?: number;
+  parentChildrenCount?: number;
   active?: boolean;
   onMouseMove?: React.MouseEventHandler<HTMLDivElement>;
 
@@ -532,6 +534,8 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
       isLeaf,
       isStart,
       isEnd,
+      index,
+      parentChildrenCount,
       expanded,
       selected,
       checked,
@@ -577,6 +581,8 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
         role="treeitem"
         aria-level={level}
         aria-expanded={this.hasChildren() ? expanded === true : null}
+        aria-posinset={index + 1}
+        aria-setsize={parentChildrenCount}
         className={classNames(className, `${prefixCls}-treenode`, {
           [`${prefixCls}-treenode-disabled`]: disabled,
           [`${prefixCls}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,

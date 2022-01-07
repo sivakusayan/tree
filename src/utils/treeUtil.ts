@@ -145,6 +145,8 @@ export function flattenTreeData(
         data: treeNode,
         isStart: [...(parent ? parent.isStart : []), index === 0],
         isEnd: [...(parent ? parent.isEnd : []), index === list.length - 1],
+        index: index,
+        parentChildrenCount: list.length,
       };
 
       flattenList.push(flattenNode);
