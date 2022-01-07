@@ -1,6 +1,3 @@
-// TODO: https://www.w3.org/TR/2017/NOTE-wai-aria-practices-1.1-20171214/examples/treeview/treeview-2/treeview-2a.html
-// Fully accessibility support
-
 import * as React from 'react';
 import KeyCode from 'rc-util/lib/KeyCode';
 import warning from 'rc-util/lib/warning';
@@ -304,7 +301,11 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
 
   currentMouseOverDroppableNodeKey = null;
 
+  rootRef = React.createRef<HTMLDivElement>();
   listRef = React.createRef<NodeListRef>();
+
+  /** Used to generate unique IDs for children of this tree */
+  uniquePrefix = Math.random();
 
   componentWillUnmount() {
     window.removeEventListener('dragend', this.onWindowDragEnd);
@@ -1045,6 +1046,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
       dragOverNodeKey,
       dropPosition,
       keyEntities: keyEntities,
+      createNameSpacedId: this.createNameSpacedId,
     };
   };
 
@@ -1193,11 +1195,13 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
     // >>>>>>>>>> Direction
     switch (event.which) {
       case KeyCode.UP: {
+        if (event.target !== this.rootRef.current) return event.preventDefault();
         this.offsetActiveKey(-1);
         event.preventDefault();
         break;
       }
       case KeyCode.DOWN: {
+        if (event.target !== this.rootRef.current) return event.preventDefault();
         this.offsetActiveKey(1);
         event.preventDefault();
         break;
@@ -1254,6 +1258,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
               eventNode,
               !checkedKeys.includes(activeKey),
             );
+            event.preventDefault();
           } else if (
             !checkable &&
             selectable &&
@@ -1261,6 +1266,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
             eventNode.selectable !== false
           ) {
             this.onNodeSelect({} as React.MouseEvent<HTMLDivElement>, eventNode);
+            event.preventDefault();
           }
           break;
         }
@@ -1307,6 +1313,8 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
   scrollTo: ScrollTo = scroll => {
     this.listRef.current.scrollTo(scroll);
   };
+
+  createNameSpacedId = str => str.toString() + this.uniquePrefix.toString();
 
   render() {
     const {
@@ -1368,6 +1376,8 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
       }
     }
 
+    const activeItem = this.getActiveItem();
+
     return (
       <TreeContext.Provider
         value={{
@@ -1414,7 +1424,13 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
         }}
       >
         <div
+          ref={this.rootRef}
           role="tree"
+          aria-disabled={focusable === false || disabled}
+          tabIndex={focusable !== false && !disabled ? tabIndex : null}
+          onKeyDown={this.onKeyDown}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
           className={classNames(prefixCls, className, {
             [`${prefixCls}-show-line`]: showLine,
             [`${prefixCls}-focused`]: focused,
@@ -1437,7 +1453,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
             focusable={focusable}
             focused={focused}
             tabIndex={tabIndex}
-            activeItem={this.getActiveItem()}
+            activeItem={activeItem}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onKeyDown={this.onKeyDown}
@@ -1446,6 +1462,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
             onListChangeEnd={this.onListChangeEnd}
             onContextMenu={onContextMenu}
             onScroll={onScroll}
+            createNameSpacedId={this.createNameSpacedId}
             {...this.getTreeNodeRequiredProps()}
             {...domProps}
           />

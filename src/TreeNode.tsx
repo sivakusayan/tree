@@ -31,6 +31,7 @@ export interface TreeNodeProps<TreeDataType extends BasicDataNode = DataNode> {
   dragOverGapBottom?: boolean;
   pos?: string;
   domRef?: React.Ref<HTMLDivElement>;
+  createNameSpacedId: (localId: string | number) => string;
   /** New added in Tree for easy data access */
   data?: TreeDataType;
   isStart?: boolean[];
@@ -541,6 +542,7 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
       data,
       onMouseMove,
       selectable,
+      createNameSpacedId,
       ...otherProps
     } = this.props;
     const {

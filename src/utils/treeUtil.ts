@@ -349,6 +349,7 @@ export interface TreeNodeRequiredProps<TreeDataType extends BasicDataNode = Data
   dragOverNodeKey: Key;
   dropPosition: number;
   keyEntities: Record<Key, DataEntity<TreeDataType>>;
+  createNameSpacedId: (localId: string | number) => string;
 }
 
 /**
@@ -366,12 +367,14 @@ export function getTreeNodeProps<TreeDataType extends BasicDataNode = DataNode>(
     dragOverNodeKey,
     dropPosition,
     keyEntities,
+    createNameSpacedId,
   }: TreeNodeRequiredProps<TreeDataType>,
 ) {
   const entity = keyEntities[key];
 
   const treeNodeProps = {
     eventKey: key,
+    createNameSpacedId: createNameSpacedId,
     expanded: expandedKeys.indexOf(key) !== -1,
     selected: selectedKeys.indexOf(key) !== -1,
     loaded: loadedKeys.indexOf(key) !== -1,

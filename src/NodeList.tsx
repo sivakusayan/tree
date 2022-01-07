@@ -9,19 +9,6 @@ import MotionTreeNode from './MotionTreeNode';
 import { findExpandedKeys, getExpandRange } from './utils/diffUtil';
 import { getTreeNodeProps, getKey } from './utils/treeUtil';
 
-const HIDDEN_STYLE = {
-  width: 0,
-  height: 0,
-  display: 'flex',
-  overflow: 'hidden',
-  opacity: 0,
-  border: 0,
-  padding: 0,
-  margin: 0,
-};
-
-const noop = () => {};
-
 export const MOTION_KEY = `RC_TREE_MOTION_${Math.random()}`;
 
 const MotionNode: DataNode = {
@@ -79,6 +66,8 @@ interface NodeListProps {
   dragOverNodeKey: Key;
   dropPosition: number;
 
+  createNameSpacedId: (localId: string | number) => string;
+
   // Virtual list
   height: number;
   itemHeight: number;
@@ -115,18 +104,6 @@ function itemKey(item: FlattenNode) {
     pos,
   } = item;
   return getKey(key, pos);
-}
-
-function getAccessibilityPath(item: FlattenNode): string {
-  let path = String(item.data.key);
-  let current = item;
-
-  while (current.parent) {
-    current = current.parent;
-    path = `${current.data.key} > ${path}`;
-  }
-
-  return path;
 }
 
 const RefNodeList: React.RefForwardingComponent<NodeListRef, NodeListProps> = (props, ref) => {
@@ -166,6 +143,8 @@ const RefNodeList: React.RefForwardingComponent<NodeListRef, NodeListProps> = (p
     onListChangeStart,
     onListChangeEnd,
 
+    createNameSpacedId,
+
     ...domProps
   } = props;
 
@@ -198,7 +177,6 @@ const RefNodeList: React.RefForwardingComponent<NodeListRef, NodeListProps> = (p
   // Do animation if expanded keys changed
   React.useEffect(() => {
     setPrevExpandedKeys(expandedKeys);
-
     const diffExpanded = findExpandedKeys(prevExpandedKeys, expandedKeys);
 
     if (diffExpanded.key !== null) {
@@ -261,30 +239,11 @@ const RefNodeList: React.RefForwardingComponent<NodeListRef, NodeListProps> = (p
     dragOverNodeKey,
     dropPosition,
     keyEntities,
+    createNameSpacedId,
   };
 
   return (
     <>
-      {focused && activeItem && (
-        <span style={HIDDEN_STYLE} aria-live="assertive">
-          {getAccessibilityPath(activeItem)}
-        </span>
-      )}
-
-      <div>
-        <input
-          style={HIDDEN_STYLE}
-          disabled={focusable === false || disabled}
-          tabIndex={focusable !== false ? tabIndex : null}
-          onKeyDown={onKeyDown}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          value=""
-          onChange={noop}
-          aria-label="for screen reader"
-        />
-      </div>
-
       <div
         className={`${prefixCls}-treenode`}
         aria-hidden
@@ -352,6 +311,7 @@ const RefNodeList: React.RefForwardingComponent<NodeListRef, NodeListProps> = (p
               onMotionStart={onListChangeStart}
               onMotionEnd={onMotionEnd}
               treeNodeRequiredProps={treeNodeRequiredProps}
+              createNameSpacedId={createNameSpacedId}
               onMouseMove={() => {
                 onActiveChange(null);
               }}
