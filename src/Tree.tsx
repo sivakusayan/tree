@@ -1427,6 +1427,7 @@ class Tree<TreeDataType extends BasicDataNode = DataNode> extends React.Componen
           ref={this.rootRef}
           role="tree"
           aria-disabled={focusable === false || disabled}
+          aria-activedescendant={activeItem ? this.createNameSpacedId(activeItem.key) : null}
           tabIndex={focusable !== false && !disabled ? tabIndex : null}
           onKeyDown={this.onKeyDown}
           onFocus={this.onFocus}

@@ -540,6 +540,7 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
       domRef,
       active,
       data,
+      pos,
       onMouseMove,
       selectable,
       createNameSpacedId,
@@ -564,11 +565,18 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
     const draggableWithoutDisabled = !disabled && mergedDraggable;
 
     const dragging = draggingNodeKey === eventKey;
-    const ariaSelected = selectable !== undefined ? { 'aria-selected': !!selectable } : undefined;
+    const ariaSelected =
+      this.isSelectable() && selected !== undefined ? { 'aria-selected': !!selected } : undefined;
+    const ariaChecked =
+      this.isCheckable() && checked !== undefined ? { 'aria-checked': !!checked } : undefined;
 
     return (
       <div
         ref={domRef}
+        id={createNameSpacedId(data.key)}
+        role="treeitem"
+        aria-level={level}
+        aria-expanded={this.hasChildren() ? expanded === true : null}
         className={classNames(className, `${prefixCls}-treenode`, {
           [`${prefixCls}-treenode-disabled`]: disabled,
           [`${prefixCls}-treenode-switcher-${expanded ? 'open' : 'close'}`]: !isLeaf,
@@ -591,7 +599,7 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
         style={style}
         // Draggable config
         draggable={draggableWithoutDisabled}
-        aria-grabbed={dragging}
+        aria-grabbed={this.isDraggable() ? dragging : null}
         onDragStart={draggableWithoutDisabled ? this.onDragStart : undefined}
         // Drop config
         onDragEnter={mergedDraggable ? this.onDragEnter : undefined}
@@ -600,6 +608,7 @@ class InternalTreeNode extends React.Component<InternalTreeNodeProps, TreeNodeSt
         onDrop={mergedDraggable ? this.onDrop : undefined}
         onDragEnd={mergedDraggable ? this.onDragEnd : undefined}
         onMouseMove={onMouseMove}
+        {...ariaChecked}
         {...ariaSelected}
         {...dataOrAriaAttributeProps}
       >
